@@ -1,0 +1,42 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import '../styles/home.css';
+
+const allPosts = await getCollection('posts', ({ data }) => !data.draft);
+allPosts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+const [featured, ...rest] = allPosts;
+---
+
+<BaseLayout>
+  {
+    featured && (
+      <article class="featured-card">
+        <h2 class="card-title">
+          <a href={`/posts/${featured.slug}`}>{featured.data.title}</a>
+        </h2>
+        <p class="card-meta">{featured.data.date.toLocaleDateString('zh-CN')}</p>
+        <p class="card-description">{featured.data.description}</p>
+      </article>
+    )
+  }
+
+  <section class="post-list">
+    {
+      rest.map(post => (
+        <article class="post-card">
+          <h2 class="card-title">
+            <a href={`/posts/${post.slug}`}>{post.data.title}</a>
+          </h2>
+          <p class="card-meta">{post.data.date.toLocaleDateString('zh-CN')}</p>
+          {post.data.description && <p class="card-description">{post.data.description}</p>}
+          <div class="card-tags">
+            {post.data.tags.map(tag => (
+              <a class="tag-chip" href={`/tags/${tag}`}>#{tag}</a>
+            ))}
+          </div>
+        </article>
+      ))
+    }
+  </section>
+</BaseLayout>
