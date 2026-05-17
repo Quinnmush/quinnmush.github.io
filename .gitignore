@@ -2,3 +2,9 @@ node_modules/
 dist/
 .env
 .DS_Store
+
+# Build cache
+.astro/
+
+# Claude Code config
+.claude/

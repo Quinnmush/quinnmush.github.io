@@ -13,7 +13,7 @@ const [featured, ...rest] = allPosts;
     featured && (
       <article class="featured-card">
         <h2 class="card-title">
-          <a href={`/posts/${featured.slug}`}>{featured.data.title}</a>
+          <a class="stretched-link" href={`/posts/${featured.slug}`}>{featured.data.title}</a>
         </h2>
         <p class="card-meta">{featured.data.date.toLocaleDateString('zh-CN')}</p>
         <p class="card-description">{featured.data.description}</p>
@@ -26,7 +26,7 @@ const [featured, ...rest] = allPosts;
       rest.map(post => (
         <article class="post-card">
           <h2 class="card-title">
-            <a href={`/posts/${post.slug}`}>{post.data.title}</a>
+            <a class="stretched-link" href={`/posts/${post.slug}`}>{post.data.title}</a>
           </h2>
           <p class="card-meta">{post.data.date.toLocaleDateString('zh-CN')}</p>
           {post.data.description && <p class="card-description">{post.data.description}</p>}

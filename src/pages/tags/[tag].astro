@@ -28,7 +28,7 @@ posts.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
     {posts.map(post => (
       <article class="post-card">
         <h2 class="card-title">
-          <a href={`/posts/${post.slug}`}>{post.data.title}</a>
+          <a class="stretched-link" href={`/posts/${post.slug}`}>{post.data.title}</a>
         </h2>
         <p class="card-meta">{post.data.date.toLocaleDateString('zh-CN')}</p>
         {post.data.description && <p class="card-description">{post.data.description}</p>}
