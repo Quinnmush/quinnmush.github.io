@@ -28,9 +28,20 @@
   --border-radius: 8px;
 }
 
-/* 暗色模式 */
+/* 暗色模式 — 手动覆盖优先，其次系统偏好 */
+[data-theme="dark"] {
+  --color-bg: #1a1a1e;
+  --color-bg-alt: #242428;
+  --color-text: #e4e4e7;
+  --color-text-secondary: #a1a1aa;
+  --color-accent: #e88d6a;
+  --color-accent-light: #c0552d;
+  --color-border: #333338;
+  --color-card-bg: #242428;
+}
+
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --color-bg: #1a1a1e;
     --color-bg-alt: #242428;
     --color-text: #e4e4e7;
@@ -40,4 +51,16 @@
     --color-border: #333338;
     --color-card-bg: #242428;
   }
+
+  :root:not([data-theme="light"]) .astro-code,
+  :root:not([data-theme="light"]) .astro-code span {
+    color: var(--shiki-dark) !important;
+    background-color: var(--shiki-dark-bg) !important;
+  }
+}
+
+[data-theme="dark"] .astro-code,
+[data-theme="dark"] .astro-code span {
+  color: var(--shiki-dark) !important;
+  background-color: var(--shiki-dark-bg) !important;
 }
