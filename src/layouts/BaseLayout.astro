@@ -109,16 +109,19 @@ const { title, description } = Astro.props;
 
           tocToggle.addEventListener('click', (e) => {
             e.stopPropagation();
-            dropdown.classList.toggle('open');
+            const isOpen = dropdown.classList.toggle('open');
+            tocToggle.classList.toggle('active', isOpen);
           });
 
           dropdown.addEventListener('click', () => {
             dropdown.classList.remove('open');
+            tocToggle.classList.remove('active');
           });
 
           document.addEventListener('click', (e) => {
             if (!tocToggle.contains(e.target) && !dropdown.contains(e.target)) {
               dropdown.classList.remove('open');
+              tocToggle.classList.remove('active');
             }
           });
         }
@@ -192,6 +195,17 @@ const { title, description } = Astro.props;
   }
 
   .toc-toggle:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+
+  .toc-toggle:focus {
+    color: var(--color-text-secondary);
+    border-color: var(--color-border);
+    background: none;
+  }
+
+  .toc-toggle.active {
     color: var(--color-accent);
     border-color: var(--color-accent);
   }
