@@ -73,6 +73,27 @@ const { post, headings = [] } = Astro.props;
   </aside>
 
   <script>
+    const updateReadingProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.body.scrollHeight - window.innerHeight;
+      const progress = docHeight > 0 ? Math.min(scrollTop / docHeight, 1) : 0;
+      const clamped = Math.max(progress, 0.02);
+      document.documentElement.style.setProperty('--reading-progress', clamped);
+      const tocList = document.querySelector('.toc-list');
+      if (tocList) {
+        const headingItems = tocList.querySelectorAll('.toc-item:not(.toc-comment-link)');
+        let maxH = 0;
+        headingItems.forEach(item => { maxH += item.offsetHeight; });
+        const gap = parseFloat(getComputedStyle(tocList).gap) || 6;
+        maxH += (headingItems.length - 1) * gap;
+        tocList.style.setProperty('--bar-h', Math.max(2, clamped * Math.max(maxH, 0)) + 'px');
+      }
+    };
+    window.addEventListener('scroll', updateReadingProgress, { passive: true });
+    updateReadingProgress();
+  </script>
+
+  <script>
     const tocHeadings = document.querySelectorAll('.post-content h2[id], .post-content h3[id]');
     if (tocHeadings.length > 0) {
       const observer = new IntersectionObserver(
