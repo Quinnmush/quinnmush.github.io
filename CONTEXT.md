@@ -10,7 +10,7 @@ src/
 │   └── posts/                # Markdown 文章
 ├── layouts/
 │   ├── BaseLayout.astro      # 全局 HTML 壳（吸顶 nav / footer + 亮暗切换 + 移动端 TOC 下拉）
-│   └── PostLayout.astro      # 文章详情布局（正文 + giscus 评论 + 桌面端 TOC 侧栏）
+│   └── PostLayout.astro      # 文章详情布局（正文 + giscus 评论 + 桌面端 TOC 侧栏 + IntersectionObserver 高亮）
 ├── pages/
 │   ├── index.astro           # 首页
 │   ├── 404.astro
@@ -92,7 +92,10 @@ series: string         # 可选 — 系列分组
 - 搜索索引构建时 JSON 端点（`/search-index.json`）
 - GitHub Actions 自动构建部署到 GitHub Pages
 - 评论系统（giscus，基于 GitHub Discussions，亮暗主题联动）
-- 文章导航目录（悬浮右侧，随滚动高亮当前章节）
+- 文章导航目录（TOC）
+  - 桌面端（≥1200px）：固定右侧悬浮侧栏，不占用正文宽度。h2 条目加粗深色，h3 条目斜体浅色小号，视觉层级分明。高亮逻辑：始终最多两个标题同时亮起（1 个 h2 + 其下属 1 个 h3），标题滚到视窗偏上部（~120px）时切换。目录列表区域可滚动，"跳转评论"固定在侧栏底部。
+  - 移动端（<1200px）：导航栏显示"目录"按钮，点击展开全宽下拉菜单，层级样式同步。点击链接自动关闭。
+  - 阅读进度指示器：侧栏左侧竖向进度条 + 移动端导航栏底部横向进度条，反映整体阅读百分比
 
 ### 延后实现
 - 阅读统计/分析
@@ -130,8 +133,8 @@ series: string         # 可选 — 系列分组
 ### 布局
 - 单栏布局，内容居中最大宽度 720px
 - 无侧边栏，强调阅读体验
-- 文章页：宽屏（>1200px）右侧悬浮 TOC 侧栏，不占用正文宽度
-- 全局 `scroll-padding-top: 5rem` 配合吸顶导航，锚点跳转不被遮挡
+- 文章页：宽屏（>1200px）右侧悬浮 TOC 侧栏，不占用正文宽度。TOC 高度限制在视口上半部，"跳转评论"固定底部
+- 全局 `scroll-padding-top: 6rem` 配合吸顶导航，锚点跳转不被遮挡
 
 ### 亮暗模式
 - **策略**：三层降级 — ① 手动切换（localStorage 存储 `theme` 键）→ ② 系统偏好（`prefers-color-scheme`）→ ③ 默认日间

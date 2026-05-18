@@ -60,16 +60,13 @@ const { post, headings = [] } = Astro.props;
       <div class="toc-title">目录</div>
       <ul class="toc-list">
         {headings.filter(h => h.depth <= 3).map(h => (
-          <li class="toc-item toc-depth-{h.depth}">
-            <a href="#{h.slug}">{h.text}</a>
+          <li class={`toc-item ${h.depth === 3 ? 'toc-depth-3' : 'toc-depth-2'}`}>
+            <a href={`#${h.slug}`}>{h.text}</a>
           </li>
         ))}
-        <li class="toc-divider" role="separator"></li>
-        <li class="toc-item toc-comment-link">
-          <a href="#giscus-comments">跳转评论</a>
-        </li>
       </ul>
     </nav>
+    <a class="toc-comment-link" href="#giscus-comments">跳转评论</a>
   </aside>
 
   <script>
@@ -81,7 +78,7 @@ const { post, headings = [] } = Astro.props;
       document.documentElement.style.setProperty('--reading-progress', clamped);
       const tocList = document.querySelector('.toc-list');
       if (tocList) {
-        const headingItems = tocList.querySelectorAll('.toc-item:not(.toc-comment-link)');
+        const headingItems = tocList.querySelectorAll('.toc-item');
         let maxH = 0;
         headingItems.forEach(item => { maxH += item.offsetHeight; });
         const gap = parseFloat(getComputedStyle(tocList).gap) || 6;
@@ -94,20 +91,57 @@ const { post, headings = [] } = Astro.props;
   </script>
 
   <script>
-    const tocHeadings = document.querySelectorAll('.post-content h2[id], .post-content h3[id]');
-    if (tocHeadings.length > 0) {
-      const observer = new IntersectionObserver(
-        (entries) => {
-          for (const entry of entries) {
-            const link = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
-            if (link) {
-              link.closest('li').classList.toggle('active', entry.isIntersecting);
-            }
-          }
-        },
-        { rootMargin: '-80px 0px -60% 0px' },
-      );
-      tocHeadings.forEach(el => observer.observe(el));
-    }
+    const updateTOCHighlight = () => {
+      const h2s = document.querySelectorAll('.post-content h2[id]');
+      const h3s = document.querySelectorAll('.post-content h3[id]');
+      if (h2s.length === 0) return;
+
+      const referenceLine = 120;
+
+      // 当前 h2：最后一个顶部越过 referenceLine 的 h2
+      let activeH2 = null;
+      for (const h2 of h2s) {
+        if (h2.getBoundingClientRect().top <= referenceLine) activeH2 = h2;
+        else break;
+      }
+      if (!activeH2) activeH2 = h2s[0];
+
+      // 当前 h3：在 activeH2 和下一个 h2 之间，最后一个顶部越过 referenceLine 的 h3
+      let activeH3 = null;
+      let nextH2Top = Infinity;
+      const activeH2Top = activeH2.getBoundingClientRect().top;
+      for (const h2 of h2s) {
+        const rect = h2.getBoundingClientRect();
+        if (rect.top > activeH2Top && rect.top > referenceLine) {
+          nextH2Top = rect.top;
+          break;
+        }
+      }
+      for (const h3 of h3s) {
+        const rect = h3.getBoundingClientRect();
+        if (rect.top > activeH2Top && rect.top <= referenceLine && rect.top < nextH2Top) {
+          activeH3 = h3;
+        }
+      }
+
+      document.querySelectorAll('.toc-item.active').forEach(el => el.classList.remove('active'));
+      if (activeH2) {
+        const link = document.querySelector(`.toc a[href="#${activeH2.id}"]`);
+        if (link) link.closest('li').classList.add('active');
+      }
+      if (activeH3) {
+        const link = document.querySelector(`.toc a[href="#${activeH3.id}"]`);
+        if (link) link.closest('li').classList.add('active');
+      }
+    };
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(() => { updateTOCHighlight(); ticking = false; });
+        ticking = true;
+      }
+    }, { passive: true });
+    updateTOCHighlight();
   </script>
 </BaseLayout>

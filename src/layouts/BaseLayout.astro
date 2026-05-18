@@ -94,7 +94,7 @@ const { title, description } = Astro.props;
           const list = document.createElement('ul');
           headings.forEach(h => {
             const li = document.createElement('li');
-            const depth = h.tagName === 'H3' ? 'toc-depth-3' : '';
+            const depth = h.tagName === 'H3' ? 'toc-depth-3' : 'toc-depth-2';
             li.innerHTML = `<a href="#${h.id}" class="${depth}">${h.textContent}</a>`;
             list.appendChild(li);
           });
@@ -261,6 +261,19 @@ const { title, description } = Astro.props;
     overflow-y: auto;
     padding: var(--space-md);
     z-index: 100;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-accent) transparent;
+  }
+
+  .toc-dropdown::-webkit-scrollbar {
+    width: 1px;
+  }
+  .toc-dropdown::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .toc-dropdown::-webkit-scrollbar-thumb {
+    background: var(--color-accent);
+    border-radius: 1px;
   }
 
   .toc-dropdown.open {
@@ -304,5 +317,29 @@ const { title, description } = Astro.props;
     .toc-dropdown {
       display: none !important;
     }
+  }
+
+  .toc-list .toc-depth-3 a {
+    padding-left: 1rem;
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    font-style: italic;
+  }
+
+  .toc-list .toc-depth-3.active a {
+    padding-left: 2.5rem;
+  }
+
+  .toc-dropdown a.toc-depth-3 {
+    font-size: 0.75rem;
+    font-weight: 400;
+    color: var(--color-text-secondary);
+    font-style: italic;
+    opacity: 0.7;
+  }
+
+  .toc-dropdown .toc-depth-3.active {
+    padding-left: 2.5rem;
   }
 </style>
