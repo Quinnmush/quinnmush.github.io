@@ -9,8 +9,8 @@ src/
 │   ├── config.ts             # 内容集合 schema
 │   └── posts/                # Markdown 文章
 ├── layouts/
-│   ├── BaseLayout.astro      # 全局 HTML 壳（nav / footer + 亮暗切换）
-│   └── PostLayout.astro      # 文章详情布局
+│   ├── BaseLayout.astro      # 全局 HTML 壳（吸顶 nav / footer + 亮暗切换 + 移动端 TOC 下拉）
+│   └── PostLayout.astro      # 文章详情布局（正文 + giscus 评论 + 桌面端 TOC 侧栏）
 ├── pages/
 │   ├── index.astro           # 首页
 │   ├── 404.astro
@@ -23,9 +23,9 @@ src/
 │       └── [tag].astro       # 标签筛选
 ├── styles/
 │   ├── variables.css         # 设计 Token
-│   ├── reset.css
+│   ├── reset.css             # CSS reset + scroll-padding + smooth scroll
 │   ├── home.css              # 首页 & 标签页样式
-│   ├── post.css              # 文章详情样式
+│   ├── post.css              # 文章详情样式（正文 + giscus + TOC）
 │   └── search.css            # 搜索页样式
 └── utils/
     └── strip-markdown.ts     # Markdown 转纯文本
@@ -91,9 +91,10 @@ series: string         # 可选 — 系列分组
 - 全客户端全文搜索（MiniSearch，CJK 分词，模糊匹配，键盘导航）
 - 搜索索引构建时 JSON 端点（`/search-index.json`）
 - GitHub Actions 自动构建部署到 GitHub Pages
+- 评论系统（giscus，基于 GitHub Discussions，亮暗主题联动）
+- 文章导航目录（悬浮右侧，随滚动高亮当前章节）
 
 ### 延后实现
-- 评论系统（giscus，基于 GitHub Discussions）
 - 阅读统计/分析
 - 关于页面
 
@@ -127,7 +128,10 @@ series: string         # 可选 — 系列分组
 ## 视觉设计
 
 ### 布局
-单栏布局，内容居中最大宽度 720px。无侧边栏，强调阅读体验。
+- 单栏布局，内容居中最大宽度 720px
+- 无侧边栏，强调阅读体验
+- 文章页：宽屏（>1200px）右侧悬浮 TOC 侧栏，不占用正文宽度
+- 全局 `scroll-padding-top: 5rem` 配合吸顶导航，锚点跳转不被遮挡
 
 ### 亮暗模式
 - **策略**：三层降级 — ① 手动切换（localStorage 存储 `theme` 键）→ ② 系统偏好（`prefers-color-scheme`）→ ③ 默认日间
@@ -141,7 +145,7 @@ series: string         # 可选 — 系列分组
 
 ### 页面结构
 - **首页**：最新一篇用特色大卡片（accent 渐变背景 + 白色文字），其余用卡片列表（白底 + border + hover 上浮阴影）
-- **文章页**：PostLayout 包裹（标题 + 日期 + 标签 chip + 正文）
+- **文章页**：PostLayout 包裹（标题 + 日期 + 标签 chip + 正文 + giscus 评论区 + 桌面 TOC 侧栏）
 - **标签聚合页** `/tags`：列出所有标签及文章数量，按频率降序
 - **标签筛选页** `/tags/[tag]`：按标签筛选文章列表
 - **搜索页** `/search`：搜索输入框（底部边框 focus-within 过渡）+ 结果列表（关键词高亮 + 标签 chip）
@@ -152,6 +156,8 @@ series: string         # 可选 — 系列分组
 - 标签页链接
 - 搜索页链接
 - 亮暗模式切换按钮（圆形图标，右侧对齐）
+- 吸顶效果（`position: sticky`），滚动时不消失
+- 文章页窄屏下显示"目录"下拉按钮（<1200px），点击展开章节导航
 
 ### 字体
 - 正文：Inter（无衬线），行高 1.75

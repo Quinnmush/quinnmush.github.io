@@ -5,9 +5,10 @@ import '../styles/post.css';
 
 export interface Props {
   post: CollectionEntry<'posts'>;
+  headings?: { depth: number; slug: string; text: string }[];
 }
 
-const { post } = Astro.props;
+const { post, headings = [] } = Astro.props;
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
@@ -24,8 +25,68 @@ const { post } = Astro.props;
       </div>
     </header>
 
-    <div class="post-content">
+    <div class="post-content" id="post-content">
       <slot />
     </div>
   </article>
+
+  <section class="post-comments" id="giscus-comments">
+    <script>
+      const giscusTheme = (() => {
+        try { return localStorage.getItem('theme') || null; } catch {}
+        return null;
+      })() || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+
+      const s = document.createElement('script');
+      s.src = 'https://giscus.app/client.js';
+      s.setAttribute('data-repo', 'Quinnmush/quinnmush.github.io');
+      s.setAttribute('data-repo-id', 'R_kgDOSfXTUA');
+      s.setAttribute('data-category', 'Announcements');
+      s.setAttribute('data-category-id', 'DIC_kwDOSfXTUM4C9SKZ');
+      s.setAttribute('data-mapping', 'pathname');
+      s.setAttribute('data-strict', '0');
+      s.setAttribute('data-reactions-enabled', '1');
+      s.setAttribute('data-emit-metadata', '0');
+      s.setAttribute('data-input-position', 'bottom');
+      s.setAttribute('data-theme', giscusTheme);
+      s.setAttribute('data-lang', 'zh-CN');
+      s.crossOrigin = 'anonymous';
+      document.getElementById('giscus-comments').appendChild(s);
+    </script>
+  </section>
+
+  <aside class="toc">
+    <nav>
+      <div class="toc-title">目录</div>
+      <ul class="toc-list">
+        {headings.filter(h => h.depth <= 3).map(h => (
+          <li class="toc-item toc-depth-{h.depth}">
+            <a href="#{h.slug}">{h.text}</a>
+          </li>
+        ))}
+        <li class="toc-divider" role="separator"></li>
+        <li class="toc-item toc-comment-link">
+          <a href="#giscus-comments">跳转评论</a>
+        </li>
+      </ul>
+    </nav>
+  </aside>
+
+  <script>
+    const tocHeadings = document.querySelectorAll('.post-content h2[id], .post-content h3[id]');
+    if (tocHeadings.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const link = document.querySelector(`.toc a[href="#${entry.target.id}"]`);
+            if (link) {
+              link.closest('li').classList.toggle('active', entry.isIntersecting);
+            }
+          }
+        },
+        { rootMargin: '-80px 0px -60% 0px' },
+      );
+      tocHeadings.forEach(el => observer.observe(el));
+    }
+  </script>
 </BaseLayout>
